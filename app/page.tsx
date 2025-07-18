@@ -1,15 +1,6 @@
-"use client"; // Important: This line must be at the very top
+"use client"; // This line must be at the very top
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { Sparkles, Bot, Zap, Copy, Check } from "lucide-react";
-
-// NOTE: We will skip creating individual component files for this MVP
-// For a real project, these would be in separate files in a /components folder.
 
 // Define the structure of our result data for TypeScript
 interface Turn {
@@ -37,7 +28,7 @@ const Index = () => {
       setError("Please fill in all fields before generating.");
       return;
     }
-
+    
     setResult(null);
     setError(null);
     setIsGenerating(true);
@@ -80,89 +71,82 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4 font-sans">
       <div className="w-full max-w-2xl space-y-8">
-        <div className="text-center space-y-4">
-          <h1 className="text-5xl font-bold text-white">AI Agent Collaborator</h1>
+        <div className="text-center space-y-2">
+          <h1 className="text-5xl font-bold">AI Agent Collaborator</h1>
           <p className="text-lg text-gray-400">Harness the power of multiple AI models.</p>
         </div>
 
-        <Card className="bg-gray-900 border-gray-700">
-          <CardContent className="p-8 space-y-6">
+        <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-8 space-y-6">
+          <div className="space-y-2">
+            <label htmlFor="question" className="text-base font-medium">What would you like to explore?</label>
+            <textarea
+              id="question"
+              placeholder="Ask anything..."
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              className="w-full min-h-[120px] p-3 bg-gray-900 border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label className="text-white">What would you like to explore?</Label>
-              <Textarea
-                placeholder="Ask anything..."
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                className="min-h-[120px] bg-gray-800 border-gray-600 text-white"
-              />
+              <label className="text-base font-medium">Primary Bot</label>
+              <select value={primaryBot} onChange={(e) => setPrimaryBot(e.target.value)} className="w-full p-3 bg-gray-900 border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <option value="" disabled>Choose your AI model</option>
+                <option value="gpt-4o">GPT-4o</option>
+                <option value="claude-3-sonnet">Claude 3 Sonnet</option>
+              </select>
             </div>
+            <div className="space-y-2">
+              <label className="text-base font-medium">Assistant's Job</label>
+              <select value={assistantJob} onChange={(e) => setAssistantJob(e.target.value)} className="w-full p-3 bg-gray-900 border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <option value="" disabled>Define the assistant role</option>
+                <option value="improve-code">Improve Code</option>
+                <option value="creative-critic">Be a Creative Critic</option>
+                <option value="simplify-topic">Simplify the Topic</option>
+              </select>
+            </div>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label className="text-white flex items-center gap-2"><Bot />Primary Bot</Label>
-                <Select value={primaryBot} onValueChange={setPrimaryBot}>
-                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white"><SelectValue placeholder="Choose AI model" /></SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-600 text-white">
-                    <SelectItem value="gpt-4o">GPT-4o</SelectItem>
-                    <SelectItem value="claude-3-sonnet">Claude 3 Sonnet</SelectItem>
-                  </SelectContent>
-                </Select>
+          <button
+            onClick={handleGenerate}
+            disabled={!question.trim() || !primaryBot || !assistantJob || isGenerating}
+            className="w-full h-14 text-lg font-semibold bg-blue-600 hover:bg-blue-700 rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isGenerating ? "Generating..." : "Generate"}
+          </button>
+        </div>
+
+        <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-8">
+          {error && <div className="text-center text-red-400"><h3 className="text-xl font-medium mb-2">An Error Occurred</h3><p>{error}</p></div>}
+          {result && !error && (
+            <div className="space-y-6 text-left">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-medium">Collaboration Result:</h3>
+                <button onClick={handleCopy} className="p-2 rounded-md hover:bg-gray-700">
+                  {hasCopied ? "Copied!" : "Copy"}
+                </button>
               </div>
-              <div className="space-y-2">
-                <Label className="text-white flex items-center gap-2"><Zap />Assistant's Job</Label>
-                <Select value={assistantJob} onValueChange={setAssistantJob}>
-                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white"><SelectValue placeholder="Define assistant role" /></SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-600 text-white">
-                    <SelectItem value="improve-code">Improve Code</SelectItem>
-                    <SelectItem value="creative-critic">Be a Creative Critic</SelectItem>
-                    <SelectItem value="simplify-topic">Simplify the Topic</SelectItem>
-                  </SelectContent>
-                </Select>
+              <p className="whitespace-pre-wrap text-gray-300">{result.summary}</p>
+              <div className="space-y-4">
+                <h4 className="font-medium text-gray-400">Collaboration History:</h4>
+                {result.history.map((turn) => (
+                  <div key={turn.round} className="p-3 rounded-md border border-gray-700 bg-gray-900/50">
+                    <p className="font-semibold text-sm text-blue-400">{turn.speaker}</p>
+                    <p className="text-sm text-gray-300 whitespace-pre-wrap">{turn.text}</p>
+                  </div>
+                ))}
               </div>
             </div>
-
-            <Button
-              onClick={handleGenerate}
-              disabled={!question.trim() || !primaryBot || !assistantJob || isGenerating}
-              className="w-full h-14 text-lg bg-blue-600 hover:bg-blue-700"
-            >
-              {isGenerating ? "Generating..." : "Generate"}
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gray-900 border-gray-700">
-          <CardContent className="p-8">
-            {error && <div className="text-red-500"><h3 className="font-bold">An Error Occurred</h3><p>{error}</p></div>}
-            {result && !error && (
-              <div className="space-y-6 text-left text-white">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-xl font-medium">Collaboration Result:</h3>
-                  <Button variant="ghost" size="icon" onClick={handleCopy}>
-                    {hasCopied ? <Check className="text-green-500" /> : <Copy />}
-                  </Button>
-                </div>
-                <p className="whitespace-pre-wrap">{result.summary}</p>
-                <div className="space-y-4">
-                  <h4 className="font-medium text-gray-400">Collaboration History:</h4>
-                  {result.history.map((turn) => (
-                    <div key={turn.round} className="p-3 rounded-md border border-gray-700 bg-gray-800">
-                      <p className="font-semibold text-sm text-blue-400">{turn.speaker}</p>
-                      <p className="text-sm text-gray-300 whitespace-pre-wrap">{turn.text}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            {!isGenerating && !result && !error && (
-              <div className="text-center text-gray-400">
-                <h3>Results will appear here</h3>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          )}
+          {!isGenerating && !result && !error && (
+             <div className="text-center text-gray-400 py-12">
+               <h3 className="text-xl font-medium">Results will appear here</h3>
+             </div>
+          )}
+        </div>
       </div>
     </div>
   );
