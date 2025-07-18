@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import ReactMarkdown from "react-markdown";
 import Prism from "prismjs";
 import "prismjs/themes/prism-tomorrow.css";
-import "prismjs/components/prism-javascript";  // or any languages you need
-
+import "prismjs/components/prism-javascript";
 
 interface Turn { round: number; speaker: string; text: string; }
 interface ResultData { summary: string; history: Turn[]; }
@@ -20,6 +19,11 @@ export default function Page() {
   const [result, setResult] = useState<ResultData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<"overview" | "code" | "history">("overview");
+
+  // Re-run Prism syntax‑highlighting whenever result or tab changes
+  useEffect(() => {
+    Prism.highlightAll();
+  }, [result, tab]);
 
   const handleGenerate = async () => {
     setLoading(true);
@@ -137,37 +141,55 @@ export default function Page() {
         </div>
       )}
 
-     {/* ─── Code ─── */}
-{tab === "code" && result && (
-  <ReactMarkdown
-    components={{
-      code({ node, inline, className, children }) {
-        const match = /language-(\w+)/.exec(className || "");
-        if (!inline && match) {
-          return (
-            <pre className="rounded-md p-4 overflow-x-auto bg-gray-800">
-              <code
-                className={className}
-                dangerouslySetInnerHTML={{
-                  __html: Prism.highlight(
-                    String(children).replace(/\n$/, ""),
-                    Prism.languages[match[1]],
-                    match[1]
-                  ),
-                }}
-              />
-            </pre>
-          );
-        }
-        return (
-          <code className="bg-gray-800 px-1 rounded">{children}</code>
-        );
-      },
-    }}
-  >
-    {result.summary}
-  </ReactMarkdown>
-)}
+      {/* ─── Code ─── */}
+      {tab === "code" && result && (
+        <ReactMarkdown
+          components={{
+            code({ node, inline, className, children }) {
+              const match = /language-(\w+)/.exec(className || "");
+              if (!inline && match) {
+                return (
+                  <pre className="rounded-md p-4 overflow-x-auto bg-gray-800">
+                    <code
+                      className={className}
+                      dangerouslySetInnerHTML={{
+                        __html: Prism.highlight(
+                          String(children).replace(/\n$/, ""),
+                          Prism.languages[match[1]],
+                          match[1]
+                        ),
+                      }}
+                    />
+                  </pre>
+                );
+              }
+              return (
+                <code className="bg-gray-800 px-1 rounded">{children}</code>
+              );
+            },
+          }}
+        >
+          {result.summary}
+        </ReactMarkdown>
+      )}
+
+      {/* ─── History ─── */}
+      {tab === "history" && result && (
+        <div>
+          {result.history.map((turn) => (
+            <details
+              key={turn.round}
+              className="mb-3 bg-gray-800 p-3 rounded"
+            >
+              <summary className="cursor-pointer font-medium">
+                {turn.speaker}
+              </summary>
+              <p className="mt-2 whitespace-pre-wrap">{turn.text}</p>
+            </details>
+          ))}
+        </div>
+      )}
+
       {!result && !error && (
         <div className="text-gray-500 mt-8 text-center">
           Your results will appear here…
