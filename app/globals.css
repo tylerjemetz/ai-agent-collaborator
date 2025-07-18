@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Basic styling for code blocks */
+pre {
+  @apply bg-gray-800 text-gray-100 p-4 rounded-md overflow-x-auto font-mono;
+}
