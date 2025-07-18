@@ -12,12 +12,14 @@ export default function Page() {
   const [bot, setBot] = useState("gpt-4o");
   const [job, setJob] = useState("improve-code");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<ResultData|null>(null);
-  const [error, setError] = useState<string|null>(null);
-  const [tab, setTab] = useState<"overview"|"code"|"history">("overview");
+  const [result, setResult] = useState<ResultData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [tab, setTab] = useState<"overview" | "code" | "history">("overview");
 
   const handleGenerate = async () => {
-    setLoading(true); setError(null); setResult(null);
+    setLoading(true);
+    setError(null);
+    setResult(null);
     try {
       const res = await fetch(
         "https://blmcbvrehzetsuqellip.supabase.co/functions/v1/orchestrate-ai",
@@ -25,9 +27,8 @@ export default function Page() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsbWNidnJlaHpldHN1cWVsbGlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODkzNzQsImV4cCI6MjA2ODM2NTM3NH0.75_CDABJ2gmKpXjF-jz5OHfAd4UuUqOwl9wGvIFXkM0",
-            apikey:      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsbWNidnJlaHpldHN1cWVsbGlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODkzNzQsImV4cCI6MjA2ODM2NTM3NH0.75_CDABJ2gmKpXjF-jz5OHfAd4UuUqOwl9wGvIFXkM0
-"
+            Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9…75_CDABJ2gmKpXjF-jz5OHfAd4UuUqOwl9wGvIFXkM0",
+            apikey:      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9…75_CDABJ2gmKpXjF-jz5OHfAd4UuUqOwl9wGvIFXkM0"
           },
           body: JSON.stringify({ prompt: q, primaryBot: bot, assistantJob: job })
         }
@@ -35,8 +36,11 @@ export default function Page() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Unknown error");
       setResult(data);
-    } catch (e: any) { setError(e.message); }
-    finally { setLoading(false); }
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const downloadZip = async () => {
@@ -56,14 +60,14 @@ export default function Page() {
         className="w-full p-3 bg-gray-800 rounded mb-4"
         placeholder="Ask anything…"
         value={q}
-        onChange={e => setQ(e.target.value)}
+        onChange={(e) => setQ(e.target.value)}
       />
 
       <div className="flex gap-2 mb-6">
         <select
           className="p-2 bg-gray-800 rounded"
           value={bot}
-          onChange={e => setBot(e.target.value)}
+          onChange={(e) => setBot(e.target.value)}
         >
           <option value="gpt-4o">GPT‑4o</option>
           <option value="claude-3-sonnet">Claude 3 Sonnet</option>
@@ -71,7 +75,7 @@ export default function Page() {
         <select
           className="p-2 bg-gray-800 rounded"
           value={job}
-          onChange={e => setJob(e.target.value)}
+          onChange={(e) => setJob(e.target.value)}
         >
           <option value="improve-code">Improve Code</option>
           <option value="creative-critic">Creative Critic</option>
@@ -90,7 +94,7 @@ export default function Page() {
 
       {/* ─── Tabs ─── */}
       <div className="flex border-b border-gray-700 mb-4">
-        {(["overview","code","history"] as const).map(t => (
+        {(["overview", "code", "history"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -135,7 +139,7 @@ export default function Page() {
       {/* ─── History ─── */}
       {tab === "history" && result && (
         <div>
-          {result.history.map(turn => (
+          {result.history.map((turn) => (
             <details
               key={turn.round}
               className="mb-3 bg-gray-800 p-3 rounded"
