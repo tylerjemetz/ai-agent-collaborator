@@ -27,12 +27,13 @@ export default function Page() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9…75_CDABJ2gmKpXjF-jz5OHfAd4UuUqOwl9wGvIFXkM0",
-            apikey:      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9…75_CDABJ2gmKpXjF-jz5OHfAd4UuUqOwl9wGvIFXkM0"
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsbWNidnJlaHpldHN1cWVsbGlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODkzNzQsImV4cCI6MjA2ODM2NTM3NH0.75_CDABJ2gmKpXjF-jz5OHfAd4UuUqOwl9wGvIFXkM0",
+            "apikey":      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsbWNidnJlaHpldHN1cWVsbGlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODkzNzQsImV4cCI6MjA2ODM2NTM3NH0.75_CDABJ2gmKpXjF-jz5OHfAd4UuUqOwl9wGvIFXkM0"
           },
           body: JSON.stringify({ prompt: q, primaryBot: bot, assistantJob: job })
         }
       );
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Unknown error");
       setResult(data);
