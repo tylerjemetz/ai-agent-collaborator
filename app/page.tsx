@@ -1,15 +1,31 @@
 // app/page.tsx
-
-// ... (your existing imports and other code above this line) ...
-
-import React, { useState, useEffect } from 'react'; // Ensure React and hooks are imported
+import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-// You might have a specific style imported, e.g.,
-// import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
-// Make sure this import is correct based on your previous setup
+// --- IMPORTANT: Choose ONE of these styles to uncomment, or add your preferred one ---
+// For a dark theme:
+import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+// For a light theme (e.g., from an older version, or you can find other light ones):
+// import { prism } from 'react-syntax-highlighter/dist/cjs/styles/prism'; // A basic light theme
+// You can browse more styles at: https://github.com/react-syntax-highlighter/react-syntax-highlighter/tree/master/src/styles/prism
 
-// Define your page component
+// If you were using `Prism.highlightAll()` directly, you might have
+// imported Prism like this:
+// import Prism from 'prismjs';
+// import 'prismjs/themes/prism-okaidia.css'; // Example Prism.js CSS
+// import 'prismjs/components/prism-javascript'; // Example language component
+
+// Since we're using react-syntax-highlighter's Prism component,
+// the global Prism.highlightAll() might not be strictly necessary
+// for markdown code blocks, but it won't hurt if you have other
+// global Prism.js uses.
+// useEffect(() => {
+//   if (typeof window !== 'undefined' && window.Prism) {
+//     window.Prism.highlightAll();
+//   }
+// }, [activeTab, summary, history]);
+
+
 export default function Home() {
   const [markdownInput, setMarkdownInput] = useState('');
   const [summary, setSummary] = useState('');
@@ -18,9 +34,9 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // useEffect(() => {
-  //   Prism.highlightAll(); // If you're using global Prism.js, this is still fine
-  // }, [activeTab, summary, history]); // Re-run highlight when content changes
+  // --- Choose your SyntaxHighlighter style here ---
+  // For this example, we'll use `oneDark` which was imported above.
+  const codeBlockStyle = oneDark; // Or `prism`, or another style you import
 
   // Function to call Supabase Edge Function
   const handleSubmit = async (e: React.FormEvent) => {
@@ -65,7 +81,7 @@ export default function Home() {
     // This part assumes you still have jszip and file-saver set up correctly
     // If not, we'll need to re-add those steps.
     alert('Download ZIP functionality is not yet fully implemented in this template.');
-    // Example:
+    // Example (uncomment and ensure JSZip and file-saver are installed if you want this):
     // const zip = new JSZip();
     // zip.file("summary.md", summary);
     // history.forEach((item, index) => {
@@ -133,9 +149,7 @@ export default function Home() {
               {summary ? (
                 <>
                   <div className="prose dark:prose-invert max-w-none">
-                    {/* The ReactMarkdown for the summary will use default rendering for code,
-                        unless you explicitly define a 'code' component here too.
-                        For now, assuming summary doesn't have complex code blocks requiring highlighting. */}
+                    {/* Summary generally doesn't have complex code blocks that need highlighting */}
                     <ReactMarkdown>{summary}</ReactMarkdown>
                   </div>
                   <div className="mt-4 flex space-x-2">
@@ -166,28 +180,20 @@ export default function Home() {
                 <div className="prose dark:prose-invert max-w-none">
                   <ReactMarkdown
                     components={{
-                      // THE FIX IS HERE:
                       code({ node, className, children, ...props }) {
                         const match = /language-(\w+)/.exec(className || "");
-                        // We check for className to determine if it's a fenced code block
-                        // Inline code typically won't have a `language-` class
                         if (className && match) {
                           return (
                             <SyntaxHighlighter
-                              // You will need to import a style, for example 'oneDark' or 'dark'
-                              // Make sure `oneDark` (or your chosen style) is imported at the top
-                              // Example: style={oneDark}
-                              // Replace 'yourChosenStyle' with the actual imported style variable
-                              // e.g., style={oneDark} if you imported `import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';`
+                              style={codeBlockStyle} // Apply the chosen style here!
                               language={match[1]}
-                              PreTag="div" // Renders a <div> around the code block
-                              {...props} // Pass any other props provided by ReactMarkdown
+                              PreTag="div"
+                              {...props}
                             >
                               {String(children).replace(/\n$/, '')}
                             </SyntaxHighlighter>
                           );
                         } else {
-                          // This handles inline code (e.g., `const x = 5;`)
                           return <code className={className || ""} {...props}>{children}</code>;
                         }
                       },
@@ -215,14 +221,12 @@ export default function Home() {
                       <div className="prose dark:prose-invert mt-2 max-w-none">
                         <ReactMarkdown
                           components={{
-                            // THE FIX IS HERE (same as for 'Code' tab if you want highlighting in history):
                             code({ node, className, children, ...props }) {
                               const match = /language-(\w+)/.exec(className || "");
                               if (className && match) {
                                 return (
                                   <SyntaxHighlighter
-                                    // Make sure to use your imported style here too
-                                    // e.g., style={oneDark}
+                                    style={codeBlockStyle} // Apply the chosen style here!
                                     language={match[1]}
                                     PreTag="div"
                                     {...props}
