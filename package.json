@@ -18,8 +18,8 @@
   },
   "devDependencies": {
     "typescript": "^5",
-    "@types-node": "^20",
-    "@types-react": "^18",
+    "@types/node": "^20",
+    "@types/react": "^18",
     "tailwindcss": "^3.4.1",
     "postcss": "^8",
     "autoprefixer": "^10"
